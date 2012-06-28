@@ -3,16 +3,14 @@
 
 package IO::Pipely::OneWay;
 
+use warnings;
 use strict;
-
-use vars qw($VERSION);
-$VERSION = '1.354'; # NOTE - Should be #.### (three decimal places)
 
 use Symbol qw(gensym);
 use IO::Socket qw( AF_UNIX SOCK_STREAM PF_UNSPEC );
 use IO::Pipely;
 
-@IO::Pipely::OneWay::ISA = qw( IO::Pipely );
+use base qw(IO::Pipely);
 
 sub DEBUG () { 0 }
 

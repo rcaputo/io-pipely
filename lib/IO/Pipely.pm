@@ -4,10 +4,8 @@
 
 package IO::Pipely;
 
+use warnings;
 use strict;
-
-use vars qw($VERSION);
-$VERSION = '1.354'; # NOTE - Should be #.### (three decimal places)
 
 use Symbol qw(gensym);
 use IO::Socket qw(
