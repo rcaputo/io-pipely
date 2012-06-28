@@ -1,7 +1,7 @@
 # Portable one-way pipe creation, trying as many different methods as
 # we can.
 
-package POE::Pipe::OneWay;
+package IO::Pipely::OneWay;
 
 use strict;
 
@@ -10,9 +10,9 @@ $VERSION = '1.354'; # NOTE - Should be #.### (three decimal places)
 
 use Symbol qw(gensym);
 use IO::Socket qw( AF_UNIX SOCK_STREAM PF_UNSPEC );
-use POE::Pipe;
+use IO::Pipely;
 
-@POE::Pipe::OneWay::ISA = qw( POE::Pipe );
+@IO::Pipely::OneWay::ISA = qw( IO::Pipely );
 
 sub DEBUG () { 0 }
 
@@ -20,7 +20,7 @@ sub new {
   my $type         = shift;
   my $conduit_type = shift;
 
-  # Dummy object used to inherit the base POE::Pipe class.
+  # Dummy object used to inherit the base IO::Pipely class.
   my $self = bless [], $type;
 
   # Generate symbols to be used as filehandles for the pipe's ends.
@@ -135,11 +135,11 @@ __END__
 
 =head1 NAME
 
-POE::Pipe::OneWay - a portable API for one-way pipes
+IO::Pipely::OneWay - a portable API for one-way pipes
 
 =head1 SYNOPSIS
 
-  my ($read, $write) = POE::Pipe::OneWay->new();
+  my ($read, $write) = IO::Pipely::OneWay->new();
   die "couldn't create a pipe: $!" unless defined $read;
 
 =head1 DESCRIPTION
@@ -149,17 +149,17 @@ system to the next.  Some operating systems support C<pipe()>.  Others
 require C<socketpair()>.  And a few operating systems support neither,
 so a plain old socket must be created.
 
-POE::Pipe::OneWay will attempt to create a unidirectional pipe using
+IO::Pipely::OneWay will attempt to create a unidirectional pipe using
 C<pipe()>, C<socketpair()>, and IO::Socket::INET, in that order.
 Exceptions are hardcoded for operating systems with broken or
 nonstandard behaviors.
 
 The upshot of all this is that an application can portably create a
-one-way pipe by instantiating POE::Pipe::OneWay.  The work of deciding
+one-way pipe by instantiating IO::Pipely::OneWay.  The work of deciding
 how to create the pipe and opening the handles will be taken care of
 internally.
 
-POE::Pipe::OneWay may be used outside of POE, as it doesn't use POE
+IO::Pipely::OneWay may be used outside of POE, as it doesn't use POE
 internally.
 
 =head1 PUBLIC METHODS
@@ -172,11 +172,11 @@ end.  On success, new() returns two handles: one for the "read" end
 and one for the "write" end.  Returns nothing on failure, and sets $!
 to explain why the constructor failed.
 
-  my ($read, $write) = POE::Pipe::OneWay->new();
+  my ($read, $write) = IO::Pipely::OneWay->new();
   die $! unless defined $read;
 
 TYPE may be one of "pipe", "socketpair", or "inet".  When set,
-POE::Pipe::OneWay will constrain its search to either C<pipe()>, a
+IO::Pipely::OneWay will constrain its search to either C<pipe()>, a
 UNIX-domain C<socketpair()>, or plain old sockets, respectively.
 Otherwise new() will try each method in order, or a particular method
 predetermined to be the best one for the current operating
@@ -184,17 +184,17 @@ environment.
 
 =head1 BUGS
 
-POE::Pipe::OneWay may block up to one second on some systems if
+IO::Pipely::OneWay may block up to one second on some systems if
 failure occurs while trying to create "inet" sockets.
 
 =head1 SEE ALSO
 
-L<POE::Pipe>, L<POE::Pipe::TwoWay>.
+L<IO::Pipely>, L<IO::Pipely::TwoWay>.
 
 =head1 AUTHOR & COPYRIGHT
 
-POE::Pipe::OneWay is copyright 2000-2008 by Rocco Caputo.  All rights
-reserved.  POE::Pipe::OneWay is free software; you may redistribute it
+IO::Pipely::OneWay is copyright 2000-2008 by Rocco Caputo.  All rights
+reserved.  IO::Pipely::OneWay is free software; you may redistribute it
 and/or modify it under the same terms as Perl itself.
 
 =cut

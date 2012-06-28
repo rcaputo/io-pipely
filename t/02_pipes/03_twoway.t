@@ -5,12 +5,12 @@ use strict;
 
 use Test::More tests => 6;
 
-use POE::Pipe::OneWay;
-use POE::Pipe::TwoWay;
+use IO::Pipely::OneWay;
+use IO::Pipely::TwoWay;
 
 ### Test two-way pipe.
 SKIP: {
-  my ($a_rd, $a_wr, $b_rd, $b_wr) = POE::Pipe::TwoWay->new('pipe');
+  my ($a_rd, $a_wr, $b_rd, $b_wr) = IO::Pipely::TwoWay->new('pipe');
 
   skip "$^O does not support two-way pipe()", 2
     unless defined $a_rd and defined $a_wr and defined $b_rd and defined $b_wr;
@@ -32,7 +32,7 @@ SKIP: {
 
 ### Test two-way socketpair.
 SKIP: {
-  my ($a_rd, $a_wr, $b_rd, $b_wr) = POE::Pipe::TwoWay->new('socketpair');
+  my ($a_rd, $a_wr, $b_rd, $b_wr) = IO::Pipely::TwoWay->new('socketpair');
 
   skip "$^O does not support two-way socketpair", 2
     unless defined $a_rd and defined $a_wr and defined $b_rd and defined $b_wr;
@@ -58,7 +58,7 @@ SKIP: {
     skip "Network access (and permission) required to run inet test.", 2;
   }
 
-  my ($a_rd, $a_wr, $b_rd, $b_wr) = POE::Pipe::TwoWay->new('inet');
+  my ($a_rd, $a_wr, $b_rd, $b_wr) = IO::Pipely::TwoWay->new('inet');
 
   skip "$^O does not support two-way inet pipes", 2
     unless defined $a_rd and defined $a_wr and defined $b_rd and defined $b_wr;

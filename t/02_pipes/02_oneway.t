@@ -5,13 +5,13 @@ use strict;
 
 use Test::More tests => 3;
 
-use POE::Pipe::OneWay;
-use POE::Pipe::TwoWay;
+use IO::Pipely::OneWay;
+use IO::Pipely::TwoWay;
 
 ### Test one-way pipe() pipe.
 
 SKIP: {
-  my ($uni_read, $uni_write) = POE::Pipe::OneWay->new('pipe');
+  my ($uni_read, $uni_write) = IO::Pipely::OneWay->new('pipe');
   skip "$^O does not support one-way pipe()", 1
     unless defined $uni_read and defined $uni_write;
 
@@ -22,7 +22,7 @@ SKIP: {
 
 ### Test one-way socketpair() pipe.
 SKIP: {
-  my ($uni_read, $uni_write) = POE::Pipe::OneWay->new('socketpair');
+  my ($uni_read, $uni_write) = IO::Pipely::OneWay->new('socketpair');
 
   skip "$^O does not support one-way socketpair()", 1
     unless defined $uni_read and defined $uni_write;
@@ -42,7 +42,7 @@ SKIP: {
     skip "Network access (and permission) required to run inet test.", 1;
   }
 
-  my ($uni_read, $uni_write) = POE::Pipe::OneWay->new('inet');
+  my ($uni_read, $uni_write) = IO::Pipely::OneWay->new('inet');
   skip "$^O does not support one-way inet sockets.", 1
     unless defined $uni_read and defined $uni_write;
 

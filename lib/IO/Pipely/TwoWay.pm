@@ -1,7 +1,7 @@
 # Portable two-way pipe creation, trying as many different methods as
 # we can.
 
-package POE::Pipe::TwoWay;
+package IO::Pipely::TwoWay;
 
 use strict;
 
@@ -10,9 +10,9 @@ $VERSION = '1.354'; # NOTE - Should be #.### (three decimal places)
 
 use Symbol qw(gensym);
 use IO::Socket qw( AF_UNIX SOCK_STREAM PF_UNSPEC );
-use POE::Pipe;
+use IO::Pipely;
 
-@POE::Pipe::TwoWay::ISA = qw( POE::Pipe );
+@IO::Pipely::TwoWay::ISA = qw( IO::Pipely );
 
 sub DEBUG () { 0 }
 
@@ -20,7 +20,7 @@ sub new {
   my $type         = shift;
   my $conduit_type = shift;
 
-  # Dummy object used to inherit the base POE::Pipe class.
+  # Dummy object used to inherit the base IO::Pipely class.
   my $self = bless [], $type;
 
   # Generate symbols to be used as filehandles for the pipe's ends.
@@ -149,11 +149,11 @@ __END__
 
 =head1 NAME
 
-POE::Pipe::TwoWay - a portable API for two-way pipes
+IO::Pipely::TwoWay - a portable API for two-way pipes
 
 =head1 SYNOPSIS
 
-  my ($a_read, $a_write, $b_read, $b_write) = POE::Pipe::TwoWay->new();
+  my ($a_read, $a_write, $b_read, $b_write) = IO::Pipely::TwoWay->new();
   die "couldn't create a pipe: $!" unless defined $a_read;
 
 =head1 DESCRIPTION
@@ -163,17 +163,17 @@ incompatible ways to create them, and many operating systems implement
 some subset of them.  Therefore it's impossible to rely on a
 particular method for their creation.
 
-POE::Pipe::TwoWay will attempt to create a bidirectional pipe using an
+IO::Pipely::TwoWay will attempt to create a bidirectional pipe using an
 appropriate method.  If that fails, it will fall back to some other
 means until success or all methods have been exhausted.  Some
 operating systems require certain exceptions, which are hardcoded into
 the library.
 
 The upshot of all this is that an application can use
-POE::Pipe::TwoWay to create a bidirectional pipe without worrying
+IO::Pipely::TwoWay to create a bidirectional pipe without worrying
 about the mechanism that works in the current run-time environment.
 
-By the way, POE::Pipe::TwoWay doesn't use POE internally, so it may be
+By the way, IO::Pipely::TwoWay doesn't use POE internally, so it may be
 used in stand-alone applications without POE.
 
 =head1 PUBLIC METHODS
@@ -187,11 +187,11 @@ four handles: read and write for one end, and read and write for the
 other.  On failure, new() sets $! to describe the error and returns
 nothing.
 
-  my ($a_read, $a_write, $b_read, $b_write) = POE::Pipe::TwoWay->new();
+  my ($a_read, $a_write, $b_read, $b_write) = IO::Pipely::TwoWay->new();
   die $! unless defined $a_read;
 
 TYPE may be one of "pipe", "socketpair", or "inet".  When set,
-POE::Pipe::TwoWay will constrain its search to either C<pipe()>, a
+IO::Pipely::TwoWay will constrain its search to either C<pipe()>, a
 UNIX-domain C<socketpair()>, or plain old sockets, respectively.
 Otherwise new() will try each method in order, or a particular method
 predetermined to be the best one for the current operating
@@ -199,17 +199,17 @@ environment.
 
 =head1 BUGS
 
-POE::Pipe::OneWay may block up to one second on some systems if
+IO::Pipely::OneWay may block up to one second on some systems if
 failure occurs while trying to create "inet" sockets.
 
 =head1 SEE ALSO
 
-L<POE::Pipe>, L<POE::Pipe::OneWay>.
+L<IO::Pipely>, L<IO::Pipely::OneWay>.
 
 =head1 AUTHOR & COPYRIGHT
 
-POE::Pipe::TwoWay is copyright 2000-2008 by Rocco Caputo.  All rights
-reserved.  POE::Pipe::TwoWay is free software; you may redistribute it
+IO::Pipely::TwoWay is copyright 2000-2008 by Rocco Caputo.  All rights
+reserved.  IO::Pipely::TwoWay is free software; you may redistribute it
 and/or modify it under the same terms as Perl itself.
 
 =cut

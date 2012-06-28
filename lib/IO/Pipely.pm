@@ -1,8 +1,8 @@
-# Common routines for POE::Pipe::OneWay and ::TwoWay.  This is meant
+# Common routines for IO::Pipely::OneWay and ::TwoWay.  This is meant
 # to be inherited.  This is ugly, messy code right now.  It fails
 # terribly upon the slightest error, which is generally bad.
 
-package POE::Pipe;
+package IO::Pipely;
 
 use strict;
 
@@ -25,10 +25,10 @@ use Errno qw(EINPROGRESS EWOULDBLOCK);
 # <dngnand>   Sounds like a lapse in cygwin's exec implementation.  It
 #             works ok under Unix-ish systems?
 # <jdeluise2> yes, it works perfectly
-# <jdeluise2> but, if we just use POE::Pipe::TwoWay->new("pipe") it
+# <jdeluise2> but, if we just use IO::Pipely::TwoWay->new("pipe") it
 #             always works fine on cygwin
 # <jdeluise2> by the way, it looks like the reason is that
-#             POE::Pipe::OneWay works because it tries to make a pipe
+#             IO::Pipely::OneWay works because it tries to make a pipe
 #             first instead of a socketpair
 # <jdeluise2> this socketpair problem seems like a long-standing one
 #             with cygwin, according to searches on google, but never
@@ -175,7 +175,7 @@ __END__
 
 =head1 NAME
 
-POE::Pipe - common methods for POE::Pipe::OneWay and POE::Pipe::TwoWay
+IO::Pipely - common methods for IO::Pipely::OneWay and IO::Pipely::TwoWay
 
 =head1 SYNOPSIS
 
@@ -183,10 +183,10 @@ POE::Pipe - common methods for POE::Pipe::OneWay and POE::Pipe::TwoWay
 
 =head1 DESCRIPTION
 
-POE::Pipe implements lower-level internal methods that are common
-among its subclasses: POE::Pipe::OneWay and POE::Pipe::TwoWay.
+IO::Pipely implements lower-level internal methods that are common
+among its subclasses: IO::Pipely::OneWay and IO::Pipely::TwoWay.
 
-The POE::Pipe classes may be used outside of POE, as they don't use
+The IO::Pipely classes may be used outside of POE, as they don't use
 POE internally.
 
 =head1 BUGS
@@ -196,12 +196,12 @@ eval{} around their calls.
 
 =head1 SEE ALSO
 
-L<POE::Pipe::OneWay>, L<POE::Pipe::TwoWay>, L<POE>
+L<IO::Pipely::OneWay>, L<IO::Pipely::TwoWay>, L<POE>
 
 =head1 AUTHOR & COPYRIGHT
 
-POE::Pipe is copyright 2001-2008 by Rocco Caputo.  All rights
-reserved.  POE::Pipe is free software; you may redistribute it and/or
+IO::Pipely is copyright 2001-2008 by Rocco Caputo.  All rights
+reserved.  IO::Pipely is free software; you may redistribute it and/or
 modify it under the same terms as Perl itself.
 
 =cut
