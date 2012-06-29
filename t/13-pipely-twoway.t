@@ -3,14 +3,13 @@
 
 use strict;
 
-use Test::More tests => 6;
+use Test::More tests => 7;
 
-use IO::Pipely::OneWay;
-use IO::Pipely::TwoWay;
+BEGIN { use_ok 'IO::Pipely', 'pipely2' };
 
 ### Test two-way pipe.
 SKIP: {
-  my ($a_rd, $a_wr, $b_rd, $b_wr) = IO::Pipely::TwoWay->new('pipe');
+  my ($a_rd, $a_wr, $b_rd, $b_wr) = pipely2(type => 'pipe');
 
   skip "$^O does not support two-way pipe()", 2
     unless defined $a_rd and defined $a_wr and defined $b_rd and defined $b_wr;
@@ -32,7 +31,7 @@ SKIP: {
 
 ### Test two-way socketpair.
 SKIP: {
-  my ($a_rd, $a_wr, $b_rd, $b_wr) = IO::Pipely::TwoWay->new('socketpair');
+  my ($a_rd, $a_wr, $b_rd, $b_wr) = pipely2(type => 'socketpair');
 
   skip "$^O does not support two-way socketpair", 2
     unless defined $a_rd and defined $a_wr and defined $b_rd and defined $b_wr;
@@ -54,11 +53,11 @@ SKIP: {
 
 ### Test two-way inet sockets.
 SKIP: {
-  unless (-f "run_network_tests") {
-    skip "Network access (and permission) required to run inet test.", 2;
+  unless ($ENV{RUN_NETWORK_TESTS}) {
+    skip 'RUN_NETWORK_TESTS environment variable is not true.', 2;
   }
 
-  my ($a_rd, $a_wr, $b_rd, $b_wr) = IO::Pipely::TwoWay->new('inet');
+  my ($a_rd, $a_wr, $b_rd, $b_wr) = pipely2(type => 'inet');
 
   skip "$^O does not support two-way inet pipes", 2
     unless defined $a_rd and defined $a_wr and defined $b_rd and defined $b_wr;

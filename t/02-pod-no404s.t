@@ -7,12 +7,12 @@ use strict;
 use Test::More;
 
 BEGIN {
-  unless (-f 'run_network_tests') {
-    plan skip_all => 'Need network access (and permission) for these tests';
+  unless ($ENV{RUN_NETWORK_TESTS}) {
+    plan skip_all => 'RUN_NETWORK_TESTS environment variable is not true.';
   }
 
   unless ( $ENV{RELEASE_TESTING} ) {
-    plan skip_all => 'enable by setting RELEASE_TESTING';
+    plan skip_all => 'RELEASE_TESTING environment variable is not true.';
   }
 
   foreach my $req (qw(Test::Pod::No404s)) {

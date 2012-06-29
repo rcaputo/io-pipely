@@ -1,17 +1,17 @@
 #!/usr/bin/perl -w
 # vim: ts=2 sw=2 filetype=perl expandtab
 
+use warnings;
 use strict;
 
-use Test::More tests => 3;
+use Test::More tests => 4;
 
-use IO::Pipely::OneWay;
-use IO::Pipely::TwoWay;
+BEGIN { use_ok 'IO::Pipely', 'pipely' };
 
 ### Test one-way pipe() pipe.
 
 SKIP: {
-  my ($uni_read, $uni_write) = IO::Pipely::OneWay->new('pipe');
+  my ($uni_read, $uni_write) = pipely(type => 'pipe');
   skip "$^O does not support one-way pipe()", 1
     unless defined $uni_read and defined $uni_write;
 
@@ -22,7 +22,7 @@ SKIP: {
 
 ### Test one-way socketpair() pipe.
 SKIP: {
-  my ($uni_read, $uni_write) = IO::Pipely::OneWay->new('socketpair');
+  my ($uni_read, $uni_write) = pipely(type => 'socketpair');
 
   skip "$^O does not support one-way socketpair()", 1
     unless defined $uni_read and defined $uni_write;
@@ -38,11 +38,11 @@ SKIP: {
 ### Test one-way pair of inet sockets.
 SKIP: {
 
-  unless (-f "run_network_tests") {
-    skip "Network access (and permission) required to run inet test.", 1;
+  unless ($ENV{RUN_NETWORK_TESTS}) {
+    skip 'RUN_NETWORK_TESTS environment variable is not true.', 1;
   }
 
-  my ($uni_read, $uni_write) = IO::Pipely::OneWay->new('inet');
+  my ($uni_read, $uni_write) = pipely(type => 'inet');
   skip "$^O does not support one-way inet sockets.", 1
     unless defined $uni_read and defined $uni_write;
 

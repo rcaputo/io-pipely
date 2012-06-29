@@ -3,7 +3,7 @@
 use Test::More;
 
 unless ( $ENV{RELEASE_TESTING} ) {
-  plan skip_all => 'enable by setting RELEASE_TESTING';
+  plan skip_all => 'RELEASE_TESTING environment variable is not true.';
 }
 
 eval "use Test::Pod 1.00";
