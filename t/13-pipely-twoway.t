@@ -5,11 +5,11 @@ use strict;
 
 use Test::More tests => 7;
 
-BEGIN { use_ok 'IO::Pipely', 'pipely2' };
+BEGIN { use_ok 'IO::Pipely', 'socketpairly' };
 
 ### Test two-way pipe.
 SKIP: {
-  my ($a_rd, $a_wr, $b_rd, $b_wr) = pipely2(type => 'pipe');
+  my ($a_rd, $a_wr, $b_rd, $b_wr) = socketpairly(type => 'pipe');
 
   skip "$^O does not support two-way pipe()", 2
     unless defined $a_rd and defined $a_wr and defined $b_rd and defined $b_wr;
@@ -31,7 +31,7 @@ SKIP: {
 
 ### Test two-way socketpair.
 SKIP: {
-  my ($a_rd, $a_wr, $b_rd, $b_wr) = pipely2(type => 'socketpair');
+  my ($a_rd, $a_wr, $b_rd, $b_wr) = socketpairly(type => 'socketpair');
 
   skip "$^O does not support two-way socketpair", 2
     unless defined $a_rd and defined $a_wr and defined $b_rd and defined $b_wr;
@@ -57,7 +57,7 @@ SKIP: {
     skip 'RUN_NETWORK_TESTS environment variable is not true.', 2;
   }
 
-  my ($a_rd, $a_wr, $b_rd, $b_wr) = pipely2(type => 'inet');
+  my ($a_rd, $a_wr, $b_rd, $b_wr) = socketpairly(type => 'inet');
 
   skip "$^O does not support two-way inet pipes", 2
     unless defined $a_rd and defined $a_wr and defined $b_rd and defined $b_wr;

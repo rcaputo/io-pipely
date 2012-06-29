@@ -20,29 +20,13 @@ use IO::Socket qw(
 use Fcntl qw(F_GETFL F_SETFL O_NONBLOCK);
 use Errno qw(EINPROGRESS EWOULDBLOCK);
 
-our @EXPORT_OK = qw(pipely pipely2);
+our @EXPORT_OK = qw(pipely socketpairly);
 use base qw(Exporter);
 
 # The order of pipe primitives depends on the platform.
 
 # It's not always safe to assume that a function can be used if it's
 # present.
-
-# CygWin seems to have a problem with socketpair() and exec().  When
-# an exec'd process closes, any data on sockets created with
-# socketpair() is not flushed.  From irc.rhizomatic.net #poe:
-#
-# <dngnand>   Sounds like a lapse in cygwin's exec implementation.  It
-#             works ok under Unix-ish systems?
-# <jdeluise2> yes, it works perfectly
-# <jdeluise2> but, if we just use POE::Pipe::TwoWay->new("pipe") it
-#             always works fine on cygwin
-# <jdeluise2> by the way, it looks like the reason is that
-#             POE::Pipe::OneWay works because it tries to make a pipe
-#             first instead of a socketpair
-# <jdeluise2> this socketpair problem seems like a long-standing one
-#             with cygwin, according to searches on google, but never
-#             been fixed.
 
 my (@oneway_pipe_types, @twoway_pipe_types);
 if ($^O eq "MSWin32" or $^O eq "MacOS") {
@@ -207,7 +191,7 @@ sub pipely {
   return;
 }
 
-sub pipely2 {
+sub socketpairly {
   my %arg = @_;
 
   my $conduit_type = delete($arg{type});
@@ -432,7 +416,7 @@ IO::Pipely - Portably create pipe() or pipe-like handles, one way or another.
 
 Please read DESCRIPTION for detailed semantics and caveats.
 
-  use IO::Pipely qw(pipely pipely2);
+  use IO::Pipely qw(pipely socketpairly);
 
   # Create a one-directional pipe() or pipe-like thing
   # the best conduit type available.
@@ -448,17 +432,17 @@ Please read DESCRIPTION for detailed semantics and caveats.
   # the best conduit type available.
 
   my (
-    $side_a_read, $side_a_write,
-    $side_b_read, $side_b_write
-  ) = pipely2();
+    $side_a_read,  $side_b_read,
+    $side_a_write, $side_b_write,
+  ) = socketpairly();
 
   # Create a bidirectional pipe-like thing using an INET socket
   # specifically.
 
   my (
-    $side_a_read, $side_a_write,
-    $side_b_read, $side_b_write
-  ) = pipely2(type => 'inet');
+    $side_a_read,  $side_b_read,
+    $side_a_write, $side_b_write,
+  ) = socketpairly(type => 'inet');
 
 =head1 DESCRIPTION
 
@@ -486,17 +470,20 @@ particular pipe type.
 
 =head2 pipely
 
-pipely() creates a one-directional pipe() or socket.  When given a
-choice, it will prefer to use leaner pipe() calls instead of
-socketpair() and socket().
+pipely() creates a one-directional pipe() or socket.  It's modeled
+after Perl's built-in pipe() function, but it creates and returns
+handles rather than opening ones given to it.
 
-On success, it returns two file handles, the first to read from the
-pipe, and the second writes into the pipe.  It returns nothing on
+On success, pipely() returns two file handles, the first to read from
+the pipe, and the second writes into the pipe.  It returns nothing on
 failure.
 
   use IO::Pipely qw(pipely);
   my ($a_read, $b_write) = pipely();
   die "pipely() failed: $!" unless $a_read;
+
+When given a choice, it will prefer to use leaner pipe() calls instead
+of socketpair() and socket().
 
 pipely()'s choice can be forced using an optional named "type"
 parameter.  See L</PIPE TYPES> for the types that can be used.
@@ -517,34 +504,49 @@ Cygwin Perl prefers pipe() first, localhost Internet sockets, and then
 socketpair().  socketpair() has been known to have problems on Cygwin.
 
 MacPerl (MacOS 9 and earlier) has similar capaibilities to Windows.
-It's unclear whether anyone still cares, but the support is cheap.
 
-=head2 pipely2
+=head2 socketpairly
 
-pipely2() creates a two-directional socket.  When given a choice, it
-will prefer bidirectional sockets instead of pipe() calls.
+socketpairly() creates a two-directional socket pair.  It's modeled
+after Perl's built-in socketpair(), but it creates and returns handles
+rather than opening ones given to it.
 
-On success, it returns four file handles, read and write for one end,
-and read and write for the other.  On failure, it returns nothing.
+On success, socketpairly() returns four file handles, read and write
+for one end, and read and write for the other.  On failure, it returns
+nothing.
 
-  use IO::Pipely qw(pipely2);
-  my ($a_read, $a_write, $b_read, $b_write) = pipely2();
-  die "pipely2() failed: $!" unless $a_read;
+  use IO::Pipely qw(socketpairly);
+  my ($a_read, $b_read, $a_write, $b_write) = socketpairly();
+  die "socketpairly() failed: $!" unless $a_read;
 
-pipely2()'s choice can be forced using an optional named "type"
-parameter.  See L</PIPE TYPES> for the types that can be used.
+socketpairly() returns two extra "writer" handles.  They exist for the
+fallback case where two pipe() calls are needed instead of one socket
+pair.  The extra handles can be ignored whenever pipe() will never be
+used.  For example:
+
+  use IO::Pipely qw(socketpairly);
+  my ($side_a, $side_b) = socketpairly( type => 'socketpair' );
+  die "socketpairly() failed: $!" unless $side_a;
+
+When given a choice, it will prefer bidirectional sockets instead of
+pipe() calls.
+
+socketpairly()'s choice can be forced using an optional named "type"
+parameter.  See L</PIPE TYPES> for the types that can be used.  In
+this example, two unidirectional pipes wil be used instead of a more
+efficient pair of sockets:
 
   my ($a_read, $a_write, $b_read, $b_write) = pipely(
     type => 'pipe',
   );
 
-On most systems, pipely2() will try to open a UNIX socketpair() first.
-It will then fall back to a pair of localhost Internet sockets, and
-finally it will try a pair of pipe() calls.
+On most systems, socketpairly() will try to open a UNIX socketpair()
+first.  It will then fall back to a pair of localhost Internet
+sockets, and finally it will try a pair of pipe() calls.
 
-On Windows (ActiveState and Strawberry Perl), pipely2() prefers a pair
-of localhost Internet sockets first.  It will then fall back to a UNIX
-socketpair(), and finally a couple of pipe() calls.  The fallback
+On Windows (ActiveState and Strawberry Perl), socketpairly() prefers a
+pair of localhost Internet sockets first.  It will then fall back to a
+UNIX socketpair(), and finally a couple of pipe() calls.  The fallback
 options will probably fail, but the code remains hopeful.
 
 Cygwin Perl prefers localhost Internet sockets first, followed by a
@@ -553,7 +555,6 @@ may find this counter-intuitive, but it works around known issues in
 some versions of Cygwin socketpair().
 
 MacPerl (MacOS 9 and earlier) has similar capaibilities to Windows.
-It's unclear whether anyone still cares, but the support is cheap.
 
 =head2 PIPE TYPES
 
@@ -593,6 +594,52 @@ Localhost INET domain sockets are a last resort for platforms that
 don't support something better.  They are the least secure method of
 communication since tools like tcpdump and Wireshark can tap into
 them.  On the other hand, this makes them easiest to debug.
+
+=head1 KNOWN ISSUES
+
+These are issues known to the developers at the time of this writing.
+Things change, so check back now and then.
+
+=head2 Cygwin
+
+CygWin seems to have a problem with socketpair() and exec().  When
+an exec'd process closes, any data on sockets created with
+socketpair() is not flushed.  From irc.perl.org channel #poe:
+
+  <dngnand>   Sounds like a lapse in cygwin's exec implementation.
+              It works ok under Unix-ish systems?
+  <jdeluise2> yes, it works perfectly
+  <jdeluise2> but, if we just use POE::Pipe::TwoWay->new("pipe")
+              it always works fine on cygwin
+  <jdeluise2> by the way, it looks like the reason is that
+              POE::Pipe::OneWay works because it tries to make a
+              pipe first instead of a socketpair
+  <jdeluise2> this socketpair problem seems like a long-standing
+              one with cygwin, according to searches on google,
+              but never been fixed.
+
+=head2 MacOS 9
+
+IO::Pipely supports MacOS 9 for historical reasons.
+It's unclear whether anyone still uses MacPerl, but the support is
+cheap since pipes and sockets there have many of the same caveats as
+they do on Windows.
+
+=head2 Symbol::gensym
+
+IO::Pipely uses Symbol::gensym() instead of autovivifying file
+handles.  The main reasons against gensym() have been stylistic ones
+so far.  Meanwhile, gensym() is compatible farther back than handle
+autovivification.
+
+=head2 Windows
+
+ActiveState and Strawberry Perl don't support pipe() or UNIX
+socketpair().  Localhost Internet sockets are used for everything
+there, including one-way pipes.
+
+For one-way pipes, the unused socket directions are shut down to avoid
+sending data the wrong way through them.  Use socketpairly() instead.
 
 =head1 BUGS
 
