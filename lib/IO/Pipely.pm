@@ -657,7 +657,7 @@ any of these is needed:
 
 =head1 AUTHOR & COPYRIGHT
 
-IO::Pipely is copyright 2000-2012 by Rocco Caputo.
+IO::Pipely is copyright 2000-2013 by Rocco Caputo.
 All rights reserved.
 IO::Pipely is free software; you may redistribute it and/or modify it
 under the same terms as Perl itself.
